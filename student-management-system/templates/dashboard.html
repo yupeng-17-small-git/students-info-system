@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}仪表板 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>仪表板
+        </h1>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">学生总数</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-students">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">课程总数</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-courses">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">图书总数</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-books">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">借阅中</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="borrowed-books">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book-reader fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 详细统计 -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users me-2"></i>学生统计
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 font-weight-bold text-success" id="active-students">-</div>
+                            <div class="text-muted">在读学生</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 font-weight-bold text-info" id="total-enrollments">-</div>
+                            <div class="text-muted">选课总数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-book me-2"></i>图书统计
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="text-center">
+                            <div class="h4 font-weight-bold text-success" id="available-books">-</div>
+                            <div class="text-muted">可借阅</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <div class="h4 font-weight-bold text-warning" id="borrowed-count">-</div>
+                            <div class="text-muted">已借出</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <div class="h4 font-weight-bold text-danger" id="overdue-books">-</div>
+                            <div class="text-muted">逾期</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 快速操作 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bolt me-2"></i>快速操作
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.student_add') }}" class="btn btn-primary btn-block">
+                            <i class="fas fa-user-plus me-1"></i>添加学生
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.course_add') }}" class="btn btn-success btn-block">
+                            <i class="fas fa-plus me-1"></i>添加课程
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.book_add') }}" class="btn btn-info btn-block">
+                            <i class="fas fa-book-medical me-1"></i>添加图书
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.enrollment_add') }}" class="btn btn-warning btn-block">
+                            <i class="fas fa-clipboard-list me-1"></i>学生选课
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.borrow_add') }}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-hand-holding me-1"></i>图书借阅
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{{ url_for('main.borrow_overdue') }}" class="btn btn-danger btn-block">
+                            <i class="fas fa-exclamation-triangle me-1"></i>逾期图书
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // 加载仪表板统计数据
+    loadDashboardStats();
+    
+    function loadDashboardStats() {
+        $.get('/api/dashboard/stats')
+            .done(function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    
+                    // 更新统计数字
+                    $('#total-students').text(data.students.total);
+                    $('#active-students').text(data.students.active);
+                    $('#total-courses').text(data.courses.total);
+                    $('#total-books').text(data.books.total);
+                    $('#available-books').text(data.books.available);
+                    $('#borrowed-books').text(data.books.borrowed);
+                    $('#borrowed-count').text(data.books.borrowed);
+                    $('#overdue-books').text(data.books.overdue || 0);
+                    $('#total-enrollments').text(data.enrollments.total);
+                }
+            })
+            .fail(function() {
+                console.error('加载仪表板数据失败');
+            });
+    }
+});
+</script>
+{% endblock %}
