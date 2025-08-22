@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}添加图书 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-book-medical me-2"></i>添加图书
+            </h1>
+            <a href="{{ url_for('main.book_list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>返回列表
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-book me-2"></i>图书信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/api/books" id="book-form">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="title" class="form-label">图书标题 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="isbn" class="form-label">ISBN</label>
+                            <input type="text" class="form-control" id="isbn" name="isbn" placeholder="978-x-xxxx-xxxx-x">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="author" class="form-label">作者 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="author" name="author" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="publisher" class="form-label">出版社</label>
+                            <input type="text" class="form-control" id="publisher" name="publisher">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="category" class="form-label">分类</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">请选择</option>
+                                <option value="计算机科学">计算机科学</option>
+                                <option value="数学">数学</option>
+                                <option value="物理">物理</option>
+                                <option value="文学">文学</option>
+                                <option value="历史">历史</option>
+                                <option value="哲学">哲学</option>
+                                <option value="经济学">经济学</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="publish_date" class="form-label">出版日期</label>
+                            <input type="date" class="form-control" id="publish_date" name="publish_date">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="price" class="form-label">价格 (元)</label>
+                            <input type="number" class="form-control" id="price" name="price" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="total_copies" class="form-label">总册数 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="total_copies" name="total_copies" min="1" required value="1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">存放位置</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="例如：A区3层书架001">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">图书简介</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" placeholder="请输入图书的简介、内容摘要等..."></textarea>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="history.back()">
+                            <i class="fas fa-times me-1"></i>取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>保存
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#book-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                if (response.success) {
+                    alert('图书添加成功！');
+                    window.location.href = '{{ url_for("main.book_list") }}';
+                } else {
+                    alert('添加失败：' + response.message);
+                }
+            },
+            error: function() {
+                alert('添加失败，请稍后重试。');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

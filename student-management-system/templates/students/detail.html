@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}学生详情 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user me-2"></i>学生详情
+            </h1>
+            <div>
+                <a href="{{ url_for('main.student_edit', student_id=student.id) }}" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-1"></i>编辑
+                </a>
+                <a href="{{ url_for('main.student_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>返回列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- 基本信息 -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-edit me-2"></i>基本信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">学号</label>
+                        <div class="fw-bold">{{ student.student_id }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">姓名</label>
+                        <div class="fw-bold">{{ student.name }}</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">身份证号</label>
+                        <div class="fw-bold">{{ student.id_card }}</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-muted">性别</label>
+                        <div class="fw-bold">
+                            {% if student.gender == '男' %}
+                                <i class="fas fa-mars text-primary me-1"></i>{{ student.gender }}
+                            {% else %}
+                                <i class="fas fa-venus text-pink me-1"></i>{{ student.gender }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-muted">年龄</label>
+                        <div class="fw-bold">{{ student.age }} 岁</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">专业</label>
+                        <div class="fw-bold">{{ student.major }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">年级</label>
+                        <div class="fw-bold">{{ student.grade }}级</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">邮箱</label>
+                        <div class="fw-bold">
+                            {% if student.email %}
+                                <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                            {% else %}
+                                <span class="text-muted">未填写</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">电话</label>
+                        <div class="fw-bold">
+                            {% if student.phone %}
+                                <a href="tel:{{ student.phone }}">{{ student.phone }}</a>
+                            {% else %}
+                                <span class="text-muted">未填写</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">状态</label>
+                        <div class="fw-bold">
+                            {% if student.status == 'active' %}
+                                <span class="badge bg-success">在读</span>
+                            {% else %}
+                                <span class="badge bg-secondary">已毕业</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">创建时间</label>
+                        <div class="fw-bold">{{ student.created_at.strftime('%Y-%m-%d %H:%M') if student.created_at else '-' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- 操作按钮 -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tools me-2"></i>操作
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.student_edit', student_id=student.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i>编辑信息
+                    </a>
+                    <a href="{{ url_for('main.enrollment_add') }}?student_id={{ student.id }}" class="btn btn-success">
+                        <i class="fas fa-clipboard-list me-1"></i>选课管理
+                    </a>
+                    <a href="{{ url_for('main.borrow_add') }}?student_id={{ student.id }}" class="btn btn-info">
+                        <i class="fas fa-book me-1"></i>借书管理
+                    </a>
+                    <button class="btn btn-danger delete-btn" data-url="/api/students/{{ student.id }}" data-name="{{ student.name }}">
+                        <i class="fas fa-trash me-1"></i>删除学生
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-bar me-2"></i>统计信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h4 font-weight-bold text-success" id="course-count">-</div>
+                        <div class="text-muted small">已选课程</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 font-weight-bold text-info" id="borrow-count">-</div>
+                        <div class="text-muted small">借阅图书</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // 加载统计信息
+    loadStudentStats();
+    
+    function loadStudentStats() {
+        $.get('/api/students/{{ student.id }}')
+            .done(function(response) {
+                if (response.success) {
+                    $('#course-count').text(response.data.enrollments || 0);
+                    $('#borrow-count').text(response.data.active_borrows || 0);
+                }
+            })
+            .fail(function() {
+                console.error('加载学生统计信息失败');
+            });
+    }
+    
+    // 删除确认
+    $('.delete-btn').click(function(e) {
+        e.preventDefault();
+        const name = $(this).data('name');
+        const url = $(this).data('url');
+        
+        if (confirm(`确定要删除学生 ${name} 吗？此操作无法撤销。`)) {
+            $.ajax({
+                url: url,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        alert('学生删除成功！');
+                        window.location.href = '{{ url_for("main.student_list") }}';
+                    } else {
+                        alert('删除失败：' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('删除失败，请稍后重试。');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

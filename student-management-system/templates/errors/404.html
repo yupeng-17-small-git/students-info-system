@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}页面未找到 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="text-center">
+                <div class="error mx-auto" data-text="404" style="font-size: 7rem; color: #e9ecef; position: relative; line-height: 1; letter-spacing: -0.1em;">
+                    404
+                </div>
+                <p class="lead text-gray-800 mb-5">页面未找到</p>
+                <p class="text-gray-500 mb-0">您访问的页面不存在或已被移动。</p>
+                <div class="mt-4">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-1"></i>返回首页
+                    </a>
+                    <button onclick="history.back()" class="btn btn-secondary ms-2">
+                        <i class="fas fa-undo me-1"></i>返回上页
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

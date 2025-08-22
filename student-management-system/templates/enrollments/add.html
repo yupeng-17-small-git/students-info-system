@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}学生选课 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>学生选课
+            </h1>
+            <a href="{{ url_for('main.enrollment_list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>返回列表
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-graduate me-2"></i>选课信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/api/enrollments" id="enrollment-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="student_id" class="form-label">选择学生 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="student_id" name="student_id" required>
+                                <option value="">请选择学生</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}" {{ 'selected' if request.args.get('student_id') == student.id|string else '' }}>
+                                    {{ student.name }} ({{ student.student_id }}) - {{ student.major }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="course_id" class="form-label">选择课程 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="course_id" name="course_id" required>
+                                <option value="">请选择课程</option>
+                                {% for course in courses %}
+                                <option value="{{ course.id }}" {{ 'selected' if request.args.get('course_id') == course.id|string else '' }}>
+                                    {{ course.name }} ({{ course.course_code }}) - {{ course.teacher }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="semester" class="form-label">学期</label>
+                            <select class="form-select" id="semester" name="semester">
+                                <option value="">请选择</option>
+                                <option value="2024-1">2024年春季学期</option>
+                                <option value="2024-2">2024年秋季学期</option>
+                                <option value="2025-1">2025年春季学期</option>
+                                <option value="2025-2">2025年秋季学期</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="history.back()">
+                            <i class="fas fa-times me-1"></i>取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>确认选课
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#enrollment-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                if (response.success) {
+                    alert('选课成功！');
+                    window.location.href = '{{ url_for("main.enrollment_list") }}';
+                } else {
+                    alert('选课失败：' + response.message);
+                }
+            },
+            error: function() {
+                alert('选课失败，请稍后重试。');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

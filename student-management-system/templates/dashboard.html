@@ -194,21 +194,21 @@ $(document).ready(function() {
     loadDashboardStats();
     
     function loadDashboardStats() {
-        $.get('/api/dashboard/stats')
+        $.get('/api/dashboard')
             .done(function(response) {
                 if (response.success) {
-                    const data = response.data;
+                    const data = response.data.overview;
                     
                     // 更新统计数字
-                    $('#total-students').text(data.students.total);
-                    $('#active-students').text(data.students.active);
-                    $('#total-courses').text(data.courses.total);
-                    $('#total-books').text(data.books.total);
-                    $('#available-books').text(data.books.available);
-                    $('#borrowed-books').text(data.books.borrowed);
-                    $('#borrowed-count').text(data.books.borrowed);
-                    $('#overdue-books').text(data.books.overdue || 0);
-                    $('#total-enrollments').text(data.enrollments.total);
+                    $('#total-students').text(data.total_students);
+                    $('#active-students').text(data.active_students);
+                    $('#total-courses').text(data.total_courses);
+                    $('#total-books').text(data.total_books);
+                    $('#available-books').text(data.available_books);
+                    $('#borrowed-books').text(data.borrowed_books);
+                    $('#borrowed-count').text(data.borrowed_books);
+                    $('#overdue-books').text(data.overdue_books || 0);
+                    $('#total-enrollments').text(data.total_enrollments);
                 }
             })
             .fail(function() {

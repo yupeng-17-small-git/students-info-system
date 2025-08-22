@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}图书列表 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-book me-2"></i>图书列表
+            </h1>
+            <a href="{{ url_for('main.book_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>添加图书
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 搜索和筛选 -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body py-3">
+                <form method="GET" class="search-form">
+                    <div class="row align-items-end">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">搜索</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control search-input" 
+                                       id="search" 
+                                       name="search" 
+                                       value="{{ search }}" 
+                                       placeholder="输入图书名称、作者或ISBN...">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">状态筛选</label>
+                            <select class="form-select status-filter" name="status">
+                                <option value="">全部状态</option>
+                                <option value="available" {{ 'selected' if request.args.get('status') == 'available' else '' }}>可借阅</option>
+                                <option value="unavailable" {{ 'selected' if request.args.get('status') == 'unavailable' else '' }}>不可借阅</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('main.book_list') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-refresh me-1"></i>重置
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图书列表 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list me-2"></i>图书信息
+                    <span class="badge bg-primary ms-2">{{ pagination.total }} 本图书</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if pagination.items %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>封面</th>
+                                    <th>图书信息</th>
+                                    <th>分类</th>
+                                    <th>库存</th>
+                                    <th>状态</th>
+                                    <th width="200">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in pagination.items %}
+                                <tr>
+                                    <td>
+                                        <div class="book-cover" style="width: 50px; height: 70px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; border-radius: 4px;">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ book.title }}</strong>
+                                            <br><small class="text-muted">作者：{{ book.author }}</small>
+                                            {% if book.isbn %}
+                                                <br><small class="text-muted">ISBN：{{ book.isbn }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ book.category or '未分类' }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="text-center">
+                                            <div class="fw-bold text-success">{{ book.available_copies }}</div>
+                                            <div class="text-muted small">/ {{ book.total_copies }}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if book.status == 'available' %}
+                                            <span class="badge bg-success">可借阅</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">不可借阅</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('main.book_detail', book_id=book.id) }}" 
+                                               class="btn btn-outline-info" 
+                                               title="查看详情">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('main.book_edit', book_id=book.id) }}" 
+                                               class="btn btn-outline-warning" 
+                                               title="编辑">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger delete-btn" 
+                                                    data-name="{{ book.title }}" 
+                                                    data-url="/api/books/{{ book.id }}" 
+                                                    title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    {% if pagination.pages > 1 %}
+                    <nav aria-label="分页导航">
+                        <ul class="pagination justify-content-center">
+                            {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.book_list', page=pagination.prev_num, search=search) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('main.book_list', page=page_num, search=search) }}">
+                                                {{ page_num }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.book_list', page=pagination.next_num, search=search) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">暂无图书数据</h5>
+                        <p class="text-muted">点击上方"添加图书"按钮开始创建图书。</p>
+                        <a href="{{ url_for('main.book_add') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>添加第一本图书
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

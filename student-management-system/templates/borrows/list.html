@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}借阅列表 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-book-reader me-2"></i>借阅列表
+            </h1>
+            <div>
+                <a href="{{ url_for('main.borrow_overdue') }}" class="btn btn-warning me-2">
+                    <i class="fas fa-exclamation-triangle me-1"></i>逾期记录
+                </a>
+                <a href="{{ url_for('main.borrow_add') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>图书借阅
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 搜索和筛选 -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body py-3">
+                <form method="GET" class="search-form">
+                    <div class="row align-items-end">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">搜索</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control search-input" 
+                                       id="search" 
+                                       name="search" 
+                                       value="{{ search }}" 
+                                       placeholder="输入学生姓名、图书名称...">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">状态筛选</label>
+                            <select class="form-select status-filter" name="status">
+                                <option value="">全部状态</option>
+                                <option value="borrowed" {{ 'selected' if request.args.get('status') == 'borrowed' else '' }}>借阅中</option>
+                                <option value="returned" {{ 'selected' if request.args.get('status') == 'returned' else '' }}>已归还</option>
+                                <option value="overdue" {{ 'selected' if request.args.get('status') == 'overdue' else '' }}>逾期</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('main.borrow_list') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-refresh me-1"></i>重置
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 借阅列表 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list me-2"></i>借阅信息
+                    <span class="badge bg-primary ms-2">{{ pagination.total }} 条记录</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if pagination.items %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>学生信息</th>
+                                    <th>图书信息</th>
+                                    <th>借阅时间</th>
+                                    <th>应还时间</th>
+                                    <th>归还时间</th>
+                                    <th>状态</th>
+                                    <th width="150">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for borrow in pagination.items %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ borrow.student.name }}</strong>
+                                            <br><small class="text-muted">{{ borrow.student.student_id }}</small>
+                                            <br><small class="text-muted">{{ borrow.student.major }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ borrow.book.title }}</strong>
+                                            <br><small class="text-muted">{{ borrow.book.author }}</small>
+                                            <br><small class="text-muted">{{ borrow.book.isbn or '无ISBN' }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ borrow.borrow_date.strftime('%Y-%m-%d') if borrow.borrow_date else '-' }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ borrow.due_date.strftime('%Y-%m-%d') if borrow.due_date else '-' }}</small>
+                                    </td>
+                                    <td>
+                                        {% if borrow.return_date %}
+                                            <small>{{ borrow.return_date.strftime('%Y-%m-%d') }}</small>
+                                        {% else %}
+                                            <span class="text-muted">未归还</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if borrow.status == 'borrowed' %}
+                                            {% if borrow.due_date and borrow.due_date < moment().date() %}
+                                                <span class="badge bg-danger">逾期</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">借阅中</span>
+                                            {% endif %}
+                                        {% elif borrow.status == 'returned' %}
+                                            <span class="badge bg-success">已归还</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ borrow.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            {% if borrow.status == 'borrowed' %}
+                                                <button class="btn btn-outline-success return-btn" 
+                                                        data-url="/api/borrows/{{ borrow.id }}/return" 
+                                                        data-book="{{ borrow.book.title }}" 
+                                                        data-student="{{ borrow.student.name }}" 
+                                                        title="归还">
+                                                    <i class="fas fa-undo"></i>
+                                                </button>
+                                            {% endif %}
+                                            <button class="btn btn-outline-danger delete-btn" 
+                                                    data-name="{{ borrow.student.name }} - {{ borrow.book.title }}" 
+                                                    data-url="/api/borrows/{{ borrow.id }}" 
+                                                    title="删除记录">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book-reader fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">暂无借阅数据</h5>
+                        <p class="text-muted">点击上方"图书借阅"按钮开始借阅。</p>
+                        <a href="{{ url_for('main.borrow_add') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>开始借阅
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // 归还图书
+    $('.return-btn').click(function(e) {
+        e.preventDefault();
+        const book = $(this).data('book');
+        const student = $(this).data('student');
+        const url = $(this).data('url');
+        
+        if (confirm(`确定要归还图书《${book}》吗？\n借阅人：${student}`)) {
+            $.ajax({
+                url: url,
+                method: 'PUT',
+                success: function(response) {
+                    if (response.success) {
+                        alert('图书归还成功！');
+                        location.reload();
+                    } else {
+                        alert('归还失败：' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('归还失败，请稍后重试。');
+                }
+            });
+        }
+    });
+    
+    // 删除记录
+    $('.delete-btn').click(function(e) {
+        e.preventDefault();
+        const name = $(this).data('name');
+        const url = $(this).data('url');
+        
+        if (confirm(`确定要删除借阅记录 ${name} 吗？此操作无法撤销。`)) {
+            $.ajax({
+                url: url,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        alert('借阅记录删除成功！');
+                        location.reload();
+                    } else {
+                        alert('删除失败：' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('删除失败，请稍后重试。');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

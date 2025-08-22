@@ -45,7 +45,7 @@ class BorrowRecord(db.Model):
     def __init__(self, **kwargs):
         super(BorrowRecord, self).__init__(**kwargs)
         # 设置默认归还日期（借阅后30天）
-        if not self.due_date:
+        if not self.due_date and self.borrow_date:
             self.due_date = self.borrow_date + timedelta(days=30)
     
     def __repr__(self):

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}课程详情 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-chalkboard-teacher me-2"></i>课程详情
+            </h1>
+            <div>
+                <a href="{{ url_for('main.course_edit', course_id=course.id) }}" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-1"></i>编辑
+                </a>
+                <a href="{{ url_for('main.course_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>返回列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- 基本信息 -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-info-circle me-2"></i>基本信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">课程代码</label>
+                        <div class="fw-bold"><code>{{ course.course_code }}</code></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">课程名称</label>
+                        <div class="fw-bold h5">{{ course.name }}</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">授课教师</label>
+                        <div class="fw-bold">
+                            <i class="fas fa-chalkboard-teacher text-muted me-1"></i>
+                            {{ course.teacher or '未分配' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-muted">学分</label>
+                        <div class="fw-bold">
+                            <span class="badge bg-info">{{ course.credits }}学分</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-muted">课时</label>
+                        <div class="fw-bold">
+                            <span class="badge bg-secondary">{{ course.hours }}课时</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">学期</label>
+                        <div class="fw-bold">{{ course.semester or '未设置' }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">教室</label>
+                        <div class="fw-bold">
+                            {% if course.classroom %}
+                                <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                                {{ course.classroom }}
+                            {% else %}
+                                未分配
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">上课时间</label>
+                        <div class="fw-bold">{{ course.schedule or '未设置' }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">状态</label>
+                        <div class="fw-bold">
+                            {% if course.status == 'active' %}
+                                <span class="badge bg-success">开课中</span>
+                            {% else %}
+                                <span class="badge bg-secondary">已结束</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if course.description %}
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label text-muted">课程描述</label>
+                        <div class="fw-bold">{{ course.description }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- 选课统计 -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users me-2"></i>选课统计
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="h3 font-weight-bold text-success">{{ course.enrollments|length }}</div>
+                        <div class="text-muted small">已选课</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h3 font-weight-bold text-primary">{{ course.max_students or '∞' }}</div>
+                        <div class="text-muted small">容量上限</div>
+                    </div>
+                </div>
+                {% if course.max_students %}
+                <div class="mt-3">
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: {{ (course.enrollments|length / course.max_students * 100) if course.max_students > 0 else 0 }}%"></div>
+                    </div>
+                    <small class="text-muted">选课率: {{ '%.1f'|format(course.enrollments|length / course.max_students * 100) if course.max_students > 0 else 0 }}%</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tools me-2"></i>操作
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.course_edit', course_id=course.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i>编辑信息
+                    </a>
+                    <a href="{{ url_for('main.enrollment_add') }}?course_id={{ course.id }}" class="btn btn-success">
+                        <i class="fas fa-user-plus me-1"></i>学生选课
+                    </a>
+                    <button class="btn btn-danger delete-btn" data-url="/api/courses/{{ course.id }}" data-name="{{ course.name }}">
+                        <i class="fas fa-trash me-1"></i>删除课程
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // 删除确认
+    $('.delete-btn').click(function(e) {
+        e.preventDefault();
+        const name = $(this).data('name');
+        const url = $(this).data('url');
+        
+        if (confirm(`确定要删除课程 ${name} 吗？此操作无法撤销。`)) {
+            $.ajax({
+                url: url,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        alert('课程删除成功！');
+                        window.location.href = '{{ url_for("main.course_list") }}';
+                    } else {
+                        alert('删除失败：' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('删除失败，请稍后重试。');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

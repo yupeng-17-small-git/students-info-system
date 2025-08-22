@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}选课列表 - 学生信息管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>选课列表
+            </h1>
+            <a href="{{ url_for('main.enrollment_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>学生选课
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 选课列表 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list me-2"></i>选课信息
+                    <span class="badge bg-primary ms-2">{{ pagination.total }} 条记录</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if pagination.items %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>学生信息</th>
+                                    <th>课程信息</th>
+                                    <th>选课时间</th>
+                                    <th>成绩</th>
+                                    <th>状态</th>
+                                    <th width="150">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for enrollment in pagination.items %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ enrollment.student.name }}</strong>
+                                            <br><small class="text-muted">{{ enrollment.student.student_id }}</small>
+                                            <br><small class="text-muted">{{ enrollment.student.major }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ enrollment.course.name }}</strong>
+                                            <br><small class="text-muted">{{ enrollment.course.course_code }}</small>
+                                            <br><small class="text-muted">{{ enrollment.course.teacher }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ enrollment.created_at.strftime('%Y-%m-%d') if enrollment.created_at else '-' }}</small>
+                                    </td>
+                                    <td>
+                                        {% if enrollment.grade %}
+                                            <span class="badge bg-success">{{ enrollment.grade }}</span>
+                                        {% else %}
+                                            <span class="text-muted">未评分</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if enrollment.status == 'enrolled' %}
+                                            <span class="badge bg-success">已选课</span>
+                                        {% elif enrollment.status == 'completed' %}
+                                            <span class="badge bg-info">已完成</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">已退课</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-danger delete-btn" 
+                                                    data-name="{{ enrollment.student.name }} - {{ enrollment.course.name }}" 
+                                                    data-url="/api/enrollments/{{ enrollment.id }}" 
+                                                    title="退课">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">暂无选课数据</h5>
+                        <p class="text-muted">点击上方"学生选课"按钮开始选课。</p>
+                        <a href="{{ url_for('main.enrollment_add') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>开始选课
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
