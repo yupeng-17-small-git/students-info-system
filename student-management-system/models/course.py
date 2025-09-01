@@ -130,3 +130,27 @@ class Course(db.Model):
         return query.paginate(
             page=page, per_page=per_page, error_out=False
         )
+
+    def validate_credits(self):
+        """验证学分"""
+        if self.credits is not None:
+            if self.credits <= 0 or self.credits > 10:
+                raise ValueError("学分必须在1-10之间")
+    
+    def validate_code(self):
+        """验证课程代码"""
+        if not self.code or len(self.code.strip()) == 0:
+            raise ValueError("课程代码不能为空")
+    
+    def validate_name(self):
+        """验证课程名称"""
+        if not self.name or len(self.name.strip()) == 0:
+            raise ValueError("课程名称不能为空")
+        if len(self.name) > 100:
+            raise ValueError("课程名称长度不能超过100个字符")
+    
+    def validate(self):
+        """执行所有验证"""
+        self.validate_code()
+        self.validate_name()
+        self.validate_credits()

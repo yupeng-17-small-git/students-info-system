@@ -35,7 +35,7 @@ class Student(db.Model):
     
     # 状态信息
     status = db.Column(db.String(20), default='active', comment='状态：active-在读，graduated-已毕业，suspended-休学')
-    enrollment_date = db.Column(db.Date, default=datetime.utcnow, comment='入学日期')
+    enrollment_date = db.Column(db.Date, default=lambda: datetime.utcnow().date(), comment='入学日期')
     
     # 时间戳
     created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='创建时间')
@@ -126,3 +126,40 @@ class Student(db.Model):
         return query.paginate(
             page=page, per_page=per_page, error_out=False
         )
+
+    def validate_age(self):
+        """验证年龄"""
+        if self.age is not None:
+            if self.age < 0 or self.age > 150:
+                raise ValueError("年龄必须在0-150之间")
+    
+    def validate_id_card(self):
+        """验证身份证号"""
+        if self.id_card:
+            # 简单的身份证号验证
+            if len(self.id_card) not in [15, 18]:
+                raise ValueError("身份证号长度不正确")
+            
+            # 检查是否全为数字（除了最后一位可能是X）
+            if not (self.id_card[:-1].isdigit() and 
+                   (self.id_card[-1].isdigit() or self.id_card[-1].upper() == 'X')):
+                raise ValueError("身份证号格式不正确")
+    
+    def validate_student_id(self):
+        """验证学号"""
+        if not self.student_id or len(self.student_id.strip()) == 0:
+            raise ValueError("学号不能为空")
+    
+    def validate_name(self):
+        """验证姓名"""
+        if not self.name or len(self.name.strip()) == 0:
+            raise ValueError("姓名不能为空")
+        if len(self.name) > 50:
+            raise ValueError("姓名长度不能超过50个字符")
+    
+    def validate(self):
+        """执行所有验证"""
+        self.validate_name()
+        self.validate_student_id()
+        self.validate_age()
+        self.validate_id_card()

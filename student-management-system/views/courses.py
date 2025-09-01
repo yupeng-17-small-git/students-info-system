@@ -7,7 +7,7 @@ Course Management Views
 
 from flask import render_template, request
 from . import main_bp
-from models import Course
+from models import db, Course
 
 @main_bp.route('/courses')
 def course_list():

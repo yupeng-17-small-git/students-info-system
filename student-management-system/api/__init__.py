@@ -45,3 +45,56 @@ api.add_resource(BorrowAPI, '/borrows/<int:borrow_id>')
 api.add_resource(DashboardAPI, '/dashboard')
 
 __all__ = ['api_bp']
+
+
+# 在 api/__init__.py 中添加错误处理
+
+from functools import wraps
+from flask import jsonify
+from sqlalchemy.exc import IntegrityError
+
+def handle_api_errors(f):
+    """API错误处理装饰器"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ValueError as e:
+            return {
+                'success': False,
+                'message': str(e),
+                'error_type': 'validation_error'
+            }, 400
+        except IntegrityError as e:
+            from models import db
+            db.session.rollback()
+            
+            error_msg = str(e.orig) if hasattr(e, 'orig') else str(e)
+            
+            if 'UNIQUE constraint failed' in error_msg:
+                if 'student_id' in error_msg:
+                    message = '学号已存在'
+                elif 'id_card' in error_msg:
+                    message = '身份证号已存在'
+                elif 'isbn' in error_msg:
+                    message = 'ISBN已存在'
+                elif 'code' in error_msg:
+                    message = '课程代码已存在'
+                else:
+                    message = '数据已存在，请检查唯一性约束'
+            else:
+                message = '数据库操作失败'
+                
+            return {
+                'success': False,
+                'message': message,
+                'error_type': 'integrity_error'
+            }, 400
+        except Exception as e:
+            return {
+                'success': False,
+                'message': f'服务器内部错误: {str(e)}',
+                'error_type': 'server_error'
+            }, 500
+    
+    return decorated_function

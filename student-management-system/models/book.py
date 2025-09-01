@@ -141,3 +141,31 @@ class Book(db.Model):
         return query.paginate(
             page=page, per_page=per_page, error_out=False
         )
+
+    def validate_total_copies(self):
+        """验证图书副本数"""
+        if self.total_copies is not None:
+            if self.total_copies <= 0 or self.total_copies > 1000:
+                raise ValueError("图书副本数必须在1-1000之间")
+    
+    def validate_isbn(self):
+        """验证ISBN"""
+        if not self.isbn or len(self.isbn.strip()) == 0:
+            raise ValueError("ISBN不能为空")
+        # 简单的ISBN格式检查
+        isbn_clean = self.isbn.replace('-', '').replace(' ', '')
+        if not (len(isbn_clean) in [10, 13] and isbn_clean[:-1].isdigit()):
+            raise ValueError("ISBN格式不正确")
+    
+    def validate_title(self):
+        """验证书名"""
+        if not self.title or len(self.title.strip()) == 0:
+            raise ValueError("书名不能为空")
+        if len(self.title) > 200:
+            raise ValueError("书名长度不能超过200个字符")
+    
+    def validate(self):
+        """执行所有验证"""
+        self.validate_isbn()
+        self.validate_title()
+        self.validate_total_copies()

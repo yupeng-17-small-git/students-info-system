@@ -190,3 +190,34 @@ class BorrowRecord(db.Model):
             record.status = 'overdue'
         db.session.commit()
         return len(overdue_records)
+
+    @staticmethod
+    def check_book_availability(book_id):
+        """检查图书是否可借"""
+        from .book import Book
+        
+        book = Book.query.get(book_id)
+        if not book:
+            return False, "图书不存在"
+        
+        # 计算已借出的副本数
+        borrowed_count = BorrowRecord.query.filter(
+            BorrowRecord.book_id == book_id,
+            BorrowRecord.status == 'borrowed'
+        ).count()
+        
+        if borrowed_count >= book.total_copies:
+            return False, "图书已全部借出"
+        
+        return True, f"可借副本：{book.total_copies - borrowed_count}"
+    
+    @classmethod
+    def create_with_inventory_check(cls, **kwargs):
+        """创建借书记录时检查库存"""
+        book_id = kwargs.get('book_id')
+        if book_id:
+            available, message = cls.check_book_availability(book_id)
+            if not available:
+                raise ValueError(message)
+        
+        return cls.create(**kwargs)
